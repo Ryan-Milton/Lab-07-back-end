@@ -17,18 +17,16 @@ require('dotenv').config();
 // setting up a port
 const PORT = process.env.PORT || 3000;
 
-// Running requests to APIs
+// getting requests and do function on once recieved
 app.get('/location', searchToLatLong);
-
 app.get('/weather', getWeather);
-
 app.get('/yelp', getYelp);
-
 app.get('/movies', getMovie);
 
+// running server on a PORT and console.log state
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
 
-///////////////// Helper Functions
+// Functions to run on recieving requests
 
 function searchToLatLong(request, response) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GOOGLE_API_KEY}`;
