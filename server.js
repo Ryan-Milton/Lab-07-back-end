@@ -40,11 +40,7 @@ function getWeather(request, response) {
   const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
   return superagent.get(url)
   .then(result => {
-    const weatherSummaries = [];
-    result.body.daily.data.map( day => {
-      const summary = new Weather(day);
-      weatherSummaries.push(summary);
-    });
+    const weatherSummaries = result.body.daily.data.map( day => new Weather(day));
     response.send(weatherSummaries);
   })
   .catch(error => handleError(error, response));
