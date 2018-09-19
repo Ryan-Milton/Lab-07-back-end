@@ -33,7 +33,8 @@ app.listen(PORT, () => console.log(`listening on ${PORT}`));
 //-----------------------------------------
 // handle LOCATION request
 
-function searchToLatLong(request, response) {
+function searchToLatLong(request, response)
+{
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GOOGLE_API_KEY}`;
   return superagent.get(url)
     .then(result =>
