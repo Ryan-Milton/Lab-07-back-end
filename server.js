@@ -64,14 +64,32 @@ function searchToLatLong(request, response)
 
 function getWeather(request, response)
 {
-  const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
-  return superagent.get(url)
-    .then(result =>
+  // const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+  // return superagent.get(url)
+  //   .then(result =>
+  //   {
+  //     const weatherSummaries = result.body.daily.data.map( day => new Weather(day));
+  //     response.send(weatherSummaries);
+  //   })
+  //   .catch(error => handleError(error, response));
+
+  Weather.lookup(
     {
-      const weatherSummaries = result.body.daily.data.map( day => new Weather(day));
-      response.send(weatherSummaries);
-    })
-    .catch(error => handleError(error, response));
+      tableName: Weather.tableName,
+
+      cacheMiss: function()
+      {
+        const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+        return superagent.get(url)
+          .then(result =>
+          {
+            const weatherSummaries = result.body.daily.data.map( day => new Weather(day));
+            response.send(weatherSummaries);
+          })
+          .catch(error => handleError(error, response));
+      }
+    }
+  );
 }
 
 //-----------------------------------------
@@ -128,9 +146,24 @@ function Weather(day)
   this.forecast = day.summary;
 }
 
-Weather.lookup = () =>
+Weather.prototype = 
 {
-  const SQL = 'SELECT * FROM weathers WHERE location_id=$1';
+  // same as Weather.prototype.save()
+  save: function(location_id)
+  {
+    const SQL = `INSERT INTO ${this.tableName} (forecast, time, location_id) VALUES ($1, $2, $3);`;
+    const values = [this.forecast, this.time, location_id];
+
+    client.query(SQL, values);
+  }
+};
+
+// name of table
+Weather.tableName = 'weathers';
+
+Weather.lookup = (options) =>
+{
+  const SQL = `SELECT * FROM ${options} WHERE location_id=$1`;
   const values = [location];
 
   client.query(SQL, values)
@@ -143,6 +176,7 @@ Weather.lookup = () =>
       else
       {
       // requesting data from the API
+        options.cacheMiss();
       }
     })
     .catch(error => handleError(error));
