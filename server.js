@@ -1,7 +1,7 @@
 'use strict';
 
 // need to add .env file in directory with all API_KEYS
-// important to put a '.env' in a server.js
+// important to put a '.env' in a .gitignore
 
 // Initialising all dependencies we will use
 const express = require('express');
