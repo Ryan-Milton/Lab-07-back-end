@@ -32,6 +32,7 @@ app.listen(PORT, () => console.log(`listening on ${PORT}`));
 
 //-----------------------------------------
 // handle LOCATION request
+
 function searchToLatLong(request, response) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GOOGLE_API_KEY}`;
   return superagent.get(url)
@@ -51,6 +52,7 @@ function searchToLatLong(request, response) {
 
 //-----------------------------------------
 // handle WEATHER request
+
 function getWeather(request, response)
 {
   const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
@@ -65,6 +67,7 @@ function getWeather(request, response)
 
 //-----------------------------------------
 // handle YELP request
+
 function getYelp(request, response)
 {
   const url = `https://api.yelp.com/v3/businesses/search?location=${request.query.data.search_query}`;
@@ -80,6 +83,7 @@ function getYelp(request, response)
 
 //-----------------------------------------
 // handle MOVIE request
+
 function getMovie(request, response)
 {
   const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.THE_MOVIE_DB_API}&query=${request.query.data.search_query}`;
