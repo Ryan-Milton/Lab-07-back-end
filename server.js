@@ -89,31 +89,43 @@ function getMovie(request, response)
   const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.THE_MOVIE_DB_API}&query=${request.query.data.search_query}`;
 
   return superagent.get(url)
-    .then(result => {
+    .then(result =>
+    {
       const moviesSummaries = result.body.results.map( movie => new Movie(movie));
       response.send(moviesSummaries);
     })
     .catch(error => handleError(error, response));
 }
 
-function handleError(err, res) {
+
+//-----------------------------------------
+// generic error handler function
+
+function handleError(err, res)
+{
   console.error(err);
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
-///////////// Constructor Functions
 
-function Weather(day) {
+//-----------------------------------------
+// helping functions for a working with a data
+// constructors
+
+
+function Weather(day)
+{
   this.time = new Date(day.time * 1000).toString().slice(0, 15);
   this.forecast = day.summary;
 }
 
-function Business(business) {
+function Business(business)
+{
   this.name = business.name;
   this.image_url = business.image_url;
   this.price = business.price;
   this.rating = business.rating;
-  this.url = business.url
+  this.url = business.url;
 }
 
 function Movie(movie) {
