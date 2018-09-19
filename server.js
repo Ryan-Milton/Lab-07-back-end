@@ -8,6 +8,13 @@ const express = require('express');
 const superagent = require('superagent');
 const cors = require('cors');
 const app = express();
+const pg = require('pg');
+
+// setup database
+// will need to add a database to .env
+const client = new pg.Client(process.env.DATABASE_URL);
+client.connect();
+client.on('error', err => console.error(err));
 
 // connecting cors to our app
 app.use(cors());
