@@ -14,39 +14,24 @@ require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
 
-app.get('/location', (request, respone) => {
-
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GOOGLE_API_KEY}`;
-
-  return superagent.get(url)
-
-    .then(result => {
-      console.log(url);
-      const locationResult = {
-        search_query: request.query.data,
-        formatted_query: result.body.results[0].formatted_address,
-        latitude: result.body.results[0].geometry.location.lat,
-        longitude: result.body.results[0].geometry.location.lng,
-      }
-      respone.send(locationResult);
-    })
-
-})
+app.get('/location', searchToLatLong);
 
 app.get('/weather', getWeather);
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
 
-function searchToLatLong(query) {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
+function searchToLatLong(request, response) {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GOOGLE_API_KEY}`;
   return superagent.get(url)
-  .then(res => {
-    return {
-      search_query: query,
-      formatted_query: res.body.results[0].formatted_address,
-      latitude: res.body.results[0].geometry.location.lat,
-      longitude: res.body.results[0].geometry.location.lng
+  .then(result => {
+    console.log(url);
+    const locationResult = {
+      search_query: request.query.data,
+      formatted_query: result.body.results[0].formatted_address,
+      latitude: result.body.results[0].geometry.location.lat,
+      longitude: result.body.results[0].geometry.location.lng,
     }
+    response.send(locationResult);
   })
   .catch(error => handleError(error));
 }
@@ -57,7 +42,7 @@ function getWeather(request, response) {
   .then(result => {
     const weatherSummaries = [];
     result.body.daily.data.forEach( day => {
-      const summary = new weatherSummaries(day);
+      const summary = new Weather(day);
       weatherSummaries.push(summary);
     });
     response.send(weatherSummaries);
