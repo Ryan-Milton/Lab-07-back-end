@@ -121,6 +121,12 @@ function Weather(day)
   this.forecast = day.summary;
 }
 
+Weather.lookup = () =>
+{
+  const SQL = 'SELECT * FROM weathers WHERE location_id=$1';
+  const values = [location];
+};
+
 function Business(business)
 {
   this.name = business.name;
