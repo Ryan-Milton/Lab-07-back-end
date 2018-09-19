@@ -1,16 +1,19 @@
 'use strict';
 
+// need to add .env file in directory with all API_KEYS
+
+// Initialising all dependencies we will use
 const express = require('express');
-
 const superagent = require('superagent');
-
 const cors = require('cors');
-
 const app = express();
 
+// connecting cors to our app
 app.use(cors());
 
+// connecting a .env file in directory
 require('dotenv').config();
+
 
 const PORT = process.env.PORT || 3000;
 
