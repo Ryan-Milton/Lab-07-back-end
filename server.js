@@ -14,9 +14,10 @@ app.use(cors());
 // connecting a .env file in directory
 require('dotenv').config();
 
-
+// setting up a port
 const PORT = process.env.PORT || 3000;
 
+// Running requests to APIs
 app.get('/location', searchToLatLong);
 
 app.get('/weather', getWeather);
