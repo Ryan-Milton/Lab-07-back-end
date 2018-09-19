@@ -18,6 +18,8 @@ app.get('/location', searchToLatLong);
 
 app.get('/weather', getWeather);
 
+app.get('/yelp', getYelp);
+
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
 
 function searchToLatLong(request, response) {
@@ -54,4 +56,25 @@ function handleError(err, res) {
 function Weather(day) {
   this.time = new Date(day.time * 1000).toString().slice(0, 15);
   this.forecast = day.summary;
+}
+
+function getYelp(request, response)
+{
+ const url = `https://api.yelp.com/v3/businesses/search?location=${request.query.data.search_query}`;
+
+ return superagent.get(url)
+   .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
+   .then(result =>
+     {
+       const yelpSummaries = result.body.businesses.map( business => new Business(business));
+      response.send(yelpSummaries);
+       })
+     };
+
+function Business(business) {
+  this.name = business.name;
+  this.image_url = business.image_url;
+  this.price = business.price;
+  this.rating = business.rating;
+  this.url = business.url
 }
