@@ -132,6 +132,20 @@ Weather.lookup = () =>
 {
   const SQL = 'SELECT * FROM weathers WHERE location_id=$1';
   const values = [location];
+
+  client.query(SQL, values)
+    .then(result =>
+    {
+      if (result.rowCount > 0)
+      {
+      // something to send back to client
+      }
+      else
+      {
+      // requesting data from the API
+      }
+    })
+    .catch(error => handleError(error));
 };
 
 function Business(business)
