@@ -41,7 +41,7 @@ function getWeather(request, response) {
   return superagent.get(url)
   .then(result => {
     const weatherSummaries = [];
-    result.body.daily.data.forEach( day => {
+    result.body.daily.data.map( day => {
       const summary = new Weather(day);
       weatherSummaries.push(summary);
     });
