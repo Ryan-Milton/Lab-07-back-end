@@ -1,12 +1,20 @@
 'use strict';
 
 // need to add .env file in directory with all API_KEYS
+// important to put a '.env' in a .gitignore
 
 // Initialising all dependencies we will use
 const express = require('express');
 const superagent = require('superagent');
 const cors = require('cors');
 const app = express();
+const pg = require('pg');
+
+// setup database
+// will need to add a database to .env
+const client = new pg.Client(process.env.DATABASE_URL);
+client.connect();
+client.on('error', err => console.error(err));
 
 // connecting cors to our app
 app.use(cors());
@@ -56,14 +64,32 @@ function searchToLatLong(request, response)
 
 function getWeather(request, response)
 {
-  const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
-  return superagent.get(url)
-    .then(result =>
+  // const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+  // return superagent.get(url)
+  //   .then(result =>
+  //   {
+  //     const weatherSummaries = result.body.daily.data.map( day => new Weather(day));
+  //     response.send(weatherSummaries);
+  //   })
+  //   .catch(error => handleError(error, response));
+
+  Weather.lookup(
     {
-      const weatherSummaries = result.body.daily.data.map( day => new Weather(day));
-      response.send(weatherSummaries);
-    })
-    .catch(error => handleError(error, response));
+      tableName: Weather.tableName,
+
+      cacheMiss: function()
+      {
+        const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+        return superagent.get(url)
+          .then(result =>
+          {
+            const weatherSummaries = result.body.daily.data.map( day => new Weather(day));
+            response.send(weatherSummaries);
+          })
+          .catch(error => handleError(error, response));
+      }
+    }
+  );
 }
 
 //-----------------------------------------
@@ -119,6 +145,42 @@ function Weather(day)
   this.time = new Date(day.time * 1000).toString().slice(0, 15);
   this.forecast = day.summary;
 }
+
+Weather.prototype = 
+{
+  // same as Weather.prototype.save()
+  save: function(location_id)
+  {
+    const SQL = `INSERT INTO ${this.tableName} (forecast, time, location_id) VALUES ($1, $2, $3);`;
+    const values = [this.forecast, this.time, location_id];
+
+    client.query(SQL, values);
+  }
+};
+
+// name of table
+Weather.tableName = 'weathers';
+
+Weather.lookup = (options) =>
+{
+  const SQL = `SELECT * FROM ${options} WHERE location_id=$1`;
+  const values = [location];
+
+  client.query(SQL, values)
+    .then(result =>
+    {
+      if (result.rowCount > 0)
+      {
+      // something to send back to client
+      }
+      else
+      {
+      // requesting data from the API
+        options.cacheMiss();
+      }
+    })
+    .catch(error => handleError(error));
+};
 
 function Business(business)
 {
